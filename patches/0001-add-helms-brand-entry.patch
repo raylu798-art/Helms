@@ -1,0 +1,51 @@
+--- a/frontend/index.html
++++ b/frontend/index.html
+@@ -3,10 +3,10 @@
+ 
+ <head>
+   <meta charset="UTF-8" />
+-  <link rel="icon" type="image/png" href="/logo.png" />
++  <link rel="icon" type="image/svg+xml" href="/helms/favicon.svg?v=20260622" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-  <meta name="description" content="Clawith — 企业数字员工平台" />
+-  <title>Clawith</title>
++  <meta name="description" content="Helms AI数字员工工作台 — 面向企业的AI数字员工工作台" />
++  <title>Helms AI数字员工工作台</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com" />
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+@@ -17,4 +17,4 @@
+   <script type="module" src="/src/main.tsx"></script>
+ </body>
+ 
+-</html>
+\ No newline at end of file
++</html>
+--- a/frontend/src/components/atlas/AtlasFrame.tsx
++++ b/frontend/src/components/atlas/AtlasFrame.tsx
+@@ -1,9 +1,9 @@
+ import type { ReactNode } from 'react';
+ import { IconWorld } from '@tabler/icons-react';
+-import ClawithWordmark from './ClawithWordmark';
++import { helmsBrandConfig } from '../../helms/brand.config';
+ 
+ interface Props {
+-    /** When provided, replaces the Clawith brand with a "← BACK" pill button */
++    /** When provided, replaces the product brand with a "← BACK" pill button */
+     onBack?: () => void;
+     /** When provided, renders the language toggle in the top-right corner */
+     onToggleLang?: () => void;
+@@ -23,7 +23,12 @@
+                             <span aria-hidden="true">←</span> Back
+                         </button>
+                     ) : (
+-                        <ClawithWordmark height={28} className="atlas-brand-wordmark" />
++                        <img
++                            src={helmsBrandConfig.logoPath}
++                            alt={helmsBrandConfig.productFullName}
++                            height={28}
++                            className="atlas-brand-wordmark"
++                        />
+                     )}
+                 </div>
+                 {onToggleLang && (

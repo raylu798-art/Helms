@@ -1,0 +1,36 @@
+<svg width="390" height="96" viewBox="0 0 390 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Helms AI数字员工工作台</title>
+  <desc id="desc">Helms horizontal logo with connected H mark and wordmark</desc>
+  <g aria-hidden="true">
+    <line x1="38" y1="34" x2="21" y2="17" stroke="#0F172A" stroke-width="7" stroke-linecap="round"/>
+    <line x1="58" y1="34" x2="75" y2="17" stroke="#0F172A" stroke-width="7" stroke-linecap="round"/>
+    <line x1="38" y1="62" x2="21" y2="79" stroke="#0F172A" stroke-width="7" stroke-linecap="round"/>
+    <line x1="58" y1="62" x2="75" y2="79" stroke="#0F172A" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="48" cy="48" r="23" fill="#F8FAFC" stroke="#0F172A" stroke-width="6"/>
+    <circle cx="18" cy="14" r="10" fill="#0F172A"/>
+    <circle cx="78" cy="14" r="10" fill="#0F172A"/>
+    <circle cx="18" cy="82" r="10" fill="#0F172A"/>
+    <circle cx="78" cy="82" r="10" fill="#0F172A"/>
+    <path d="M38 36h7v9h6v-9h7v24h-7v-9h-6v9h-7V36Z" fill="#0F172A"/>
+  </g>
+  <g aria-hidden="true" fill="#0F172A">
+    <rect x="106" y="28" width="8" height="40" rx="1"/>
+    <rect x="138" y="28" width="8" height="40" rx="1"/>
+    <rect x="106" y="44" width="40" height="8" rx="1"/>
+
+    <rect x="162" y="28" width="42" height="8" rx="1"/>
+    <rect x="162" y="44" width="32" height="8" rx="1"/>
+    <rect x="162" y="60" width="42" height="8" rx="1"/>
+
+    <rect x="220" y="28" width="8" height="40" rx="1"/>
+    <rect x="220" y="60" width="40" height="8" rx="1"/>
+
+    <path d="M276 68V28h9l16 20 16-20h9v40h-8V42l-14 17h-6l-14-17v26h-8Z"/>
+
+    <rect x="344" y="28" width="40" height="8" rx="1"/>
+    <rect x="344" y="28" width="8" height="24" rx="1"/>
+    <rect x="344" y="44" width="40" height="8" rx="1"/>
+    <rect x="376" y="44" width="8" height="24" rx="1"/>
+    <rect x="344" y="60" width="40" height="8" rx="1"/>
+  </g>
+</svg>

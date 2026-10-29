@@ -1,0 +1,41 @@
+--- a/frontend/src/i18n/index.ts
++++ b/frontend/src/i18n/index.ts
+@@ -3,13 +3,37 @@
+ import LanguageDetector from 'i18next-browser-languagedetector';
+ import zh from './zh.json';
+ import en from './en.json';
++import { helmsI18nOverridesZhCN } from '../helms/i18n-overrides.zh-CN';
+ 
++type TranslationResource = Record<string, unknown>;
++
++const isPlainObject = (value: unknown): value is TranslationResource =>
++    !!value && typeof value === 'object' && !Array.isArray(value);
++
++const mergeTranslations = <T extends TranslationResource>(
++    base: T,
++    overrides: TranslationResource,
++): T => {
++    const merged: TranslationResource = { ...base };
++
++    for (const [key, value] of Object.entries(overrides)) {
++        const current = merged[key];
++        merged[key] = isPlainObject(current) && isPlainObject(value)
++            ? mergeTranslations(current, value)
++            : value;
++    }
++
++    return merged as T;
++};
++
++const helmsZh = mergeTranslations(zh, helmsI18nOverridesZhCN);
++
+ i18n
+     .use(LanguageDetector)
+     .use(initReactI18next)
+     .init({
+         resources: {
+-            zh: { translation: zh },
++            zh: { translation: helmsZh },
+             en: { translation: en },
+         },
+         fallbackLng: 'en',

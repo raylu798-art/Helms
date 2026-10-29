@@ -1,0 +1,146 @@
+services:
+  postgres:
+    image: ${HELMS_POSTGRES_IMAGE:-postgres:15-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-helms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-replace-with-a-strong-postgres-password}
+      POSTGRES_DB: ${POSTGRES_DB:-helms}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-helms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - default
+
+  redis:
+    image: ${HELMS_REDIS_IMAGE:-redis:7-alpine}
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - default
+
+  minio:
+    image: ${HELMS_MINIO_IMAGE:-minio/minio:RELEASE.2025-04-22T22-12-26Z}
+    restart: unless-stopped
+    profiles:
+      - s3
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-helms}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-replace-with-a-strong-minio-password}
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - default
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        HELMS_PYTHON_BASE_IMAGE: ${HELMS_PYTHON_BASE_IMAGE:-python:3.12-slim}
+        CLAWITH_PIP_INDEX_URL: ${CLAWITH_PIP_INDEX_URL:-}
+        CLAWITH_PIP_TRUSTED_HOST: ${CLAWITH_PIP_TRUSTED_HOST:-}
+    restart: unless-stopped
+    environment:
+      APP_NAME: Helms
+      DATABASE_URL: "${DATABASE_URL:-postgresql+asyncpg://helms:replace-with-a-strong-postgres-password@postgres:5432/helms}"
+      REDIS_URL: "${REDIS_URL:-redis://redis:6379/0}"
+      AGENT_DATA_DIR: /data/agents
+      AGENT_TEMPLATE_DIR: /app/agent_template
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      STORAGE_LOCAL_ROOT: /data/agents
+      STORAGE_LOCAL_FALLBACK_ENABLED: ${STORAGE_LOCAL_FALLBACK_ENABLED:-true}
+      S3_BUCKET: ${S3_BUCKET:-helms}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ENDPOINT_URL: "${S3_ENDPOINT_URL:-http://minio:9000}"
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-helms}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-replace-with-a-strong-minio-password}
+      S3_PREFIX: ${S3_PREFIX:-agents}
+      SECRET_KEY: ${SECRET_KEY:-replace-with-a-strong-random-secret}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-a-different-strong-random-secret}
+      PROCESS_ROLE: ${PROCESS_ROLE:-all}
+      AGENT_RUNTIME_COMMAND_CONCURRENCY: ${AGENT_RUNTIME_COMMAND_CONCURRENCY:-10}
+      AGENT_RUNTIME_V2_ENABLED: "true"
+      AGENT_RUNTIME_V2_AGENT_IDS: ""
+      AGENT_RUNTIME_V2_SOURCE_TYPES: ""
+      MULTI_AGENT_PLANNING_MODEL_ID: ${MULTI_AGENT_PLANNING_MODEL_ID:-}
+      MULTI_AGENT_COMPACT_MODEL_ID: ${MULTI_AGENT_COMPACT_MODEL_ID:-}
+      CORS_ORIGINS: '${CORS_ORIGINS:-["http://localhost:3008"]}'
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://localhost:3008}"
+      FEISHU_APP_ID: ${FEISHU_APP_ID:-}
+      FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
+      FEISHU_REDIRECT_URI: ${FEISHU_REDIRECT_URI:-}
+      JINA_API_KEY: ${JINA_API_KEY:-}
+      EXA_API_KEY: ${EXA_API_KEY:-}
+      SANDBOX_TYPE: ${SANDBOX_TYPE:-subprocess}
+      SANDBOX_API_KEY: ${SANDBOX_API_KEY:-}
+      SANDBOX_API_URL: ${SANDBOX_API_URL:-}
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: ${PASSWORD_RESET_TOKEN_EXPIRE_MINUTES:-30}
+      SS_CONFIG_FILE: /data/ss-nodes.json
+    volumes:
+      - agentdata:/data/agents
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./ss-nodes.json:/data/ss-nodes.json:ro
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - helms-backend
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        HELMS_NGINX_BASE_IMAGE: ${HELMS_NGINX_BASE_IMAGE:-nginx:alpine}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3008}:3000"
+    environment:
+      API_UPSTREAM: ${API_UPSTREAM:-backend:8000}
+      MINIO_UPSTREAM: ${MINIO_UPSTREAM:-minio:9000}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - default
+
+volumes:
+  pgdata:
+  redisdata:
+  agentdata:
+  miniodata:
+
+networks:
+  default:
+    name: ${HELMS_DOCKER_NETWORK:-helms_network}

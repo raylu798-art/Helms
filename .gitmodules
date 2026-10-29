@@ -1,0 +1,4 @@
+[submodule "vendor/clawith"]
+	path = vendor/clawith
+	url = https://github.com/dataelement/Clawith.git
+

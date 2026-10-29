@@ -1,0 +1,10 @@
+# Helms patch series.
+#
+# Keep this file ordered. Blank lines and lines beginning with "#" are ignored.
+# Add focused patches here after they are generated from .work/clawith-helms.
+#
+# Example:
+# 0001-add-helms-brand-entry.patch
+# 0002-add-helms-i18n-entry.patch
+0001-add-helms-brand-entry.patch
+0002-add-helms-i18n-entry.patch
