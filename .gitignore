@@ -7,6 +7,9 @@
 # Helms temporary build and patch workspace.
 .work/
 
+# Keep local business documents out of the public repository.
+docs/*.docx
+
 # Logs and local diagnostics.
 *.log
 npm-debug.log*
